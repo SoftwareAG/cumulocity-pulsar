@@ -24,8 +24,12 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.dashboard.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
     component: {{ .Values.dashboard.component }}
+    cluster: {{ template "pulsar.fullname" . }}
 spec:
   replicas: {{ .Values.dashboard.replicaCount }}
   selector:
@@ -36,9 +40,10 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "pulsar.template.labels" . | nindent 8 }}
+        app: {{ template "pulsar.name" . }}
+        release: {{ .Release.Name }}
         component: {{ .Values.dashboard.component }}
-
+        cluster: {{ template "pulsar.fullname" . }}
       annotations:
 {{ toYaml .Values.dashboard.annotations | indent 8 }}
     spec:
@@ -62,6 +67,8 @@ spec:
         ports:
         - name: http
           containerPort: 80
+        securityContext:
+          privileged: true
         env:
         - name: SERVICE_URL
           value: http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:8080/

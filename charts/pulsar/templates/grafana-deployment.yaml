@@ -62,6 +62,8 @@ spec:
         ports:
         - name: server
           containerPort: {{ .Values.grafana.service.targetPort }}
+        securityContext:
+          privileged: true
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"

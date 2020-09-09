@@ -133,6 +133,8 @@ spec:
         ports:
         - name: http
           containerPort: {{ .Values.autorecovery.ports.http }}
+        securityContext:
+          privileged: true
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
