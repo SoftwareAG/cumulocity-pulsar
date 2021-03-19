@@ -211,3 +211,6 @@ spec:
     {{- end }}
 {{- end }}
 {{- end }}
+{{- if .Values.imagePullSecret }}
+  imagePullSecret: {{ .Values.imagePullSecret }}
+{{- end }}

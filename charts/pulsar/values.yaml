@@ -29,6 +29,8 @@ namespaceCreate: false
 ## clusterDomain as defined for your k8s cluster
 clusterDomain: cluster.local
 
+imagePullSecret: stageregsecret
+
 ###
 ### Global Settings
 ###
@@ -311,6 +313,9 @@ zookeeper:
     requests:
       memory: 256Mi
       cpu: 0.1
+    limits:
+      memory: 256Mi
+      cpu: 0.1
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -375,6 +380,9 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
+      # limits:
+        # memory: 4Gi
+        # cpu: 2
   replicaCount: 4
   updateStrategy:
     type: RollingUpdate
@@ -417,6 +425,9 @@ bookkeeper:
   gracePeriod: 30
   resources:
     requests:
+      memory: 512Mi
+      cpu: 0.2
+    limits:
       memory: 512Mi
       cpu: 0.2
   volumes:
@@ -524,6 +535,9 @@ autorecovery:
     requests:
       memory: 64Mi
       cpu: 0.05
+    limits:
+      memory: 64Mi
+      cpu: 0.05
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -602,6 +616,9 @@ broker:
   gracePeriod: 30
   resources:
     requests:
+      memory: 512Mi
+      cpu: 0.2
+    limits:
       memory: 512Mi
       cpu: 0.2
   ## Broker configmap
@@ -695,6 +712,9 @@ proxy:
     requests:
       memory: 128Mi
       cpu: 0.2
+    limits:
+      memory: 128Mi
+      cpu: 0.2
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
@@ -769,6 +789,9 @@ dashboard:
     requests:
       memory: 1Gi
       cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 250m
   ## Dashboard service
   ## templates/dashboard-service.yaml
   ##
@@ -808,6 +831,9 @@ toolset:
     requests:
       memory: 256Mi
       cpu: 0.1
+    limits:
+      memory: 256Mi
+      cpu: 0.1
   ## Bastion configmap
   ## templates/bastion-configmap.yaml
   ##
@@ -840,6 +866,9 @@ prometheus:
   port: 9090
   resources:
     requests:
+      memory: 256Mi
+      cpu: 0.1
+    limits:
       memory: 256Mi
       cpu: 0.1
   volumes:
@@ -879,6 +908,9 @@ grafana:
   gracePeriod: 30
   resources:
     requests:
+      memory: 250Mi
+      cpu: 0.1
+    limits:
       memory: 250Mi
       cpu: 0.1
   ## Grafana service
@@ -931,6 +963,9 @@ pulsar_manager:
   gracePeriod: 30
   resources:
     requests:
+      memory: 250Mi
+      cpu: 0.1
+    limits:
       memory: 250Mi
       cpu: 0.1
   configData:
