@@ -200,6 +200,10 @@ spec:
           name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
           defaultMode: 0755
       {{- end}}
+{{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+{{- end }}
 {{- if and (and .Values.persistence .Values.volumes.persistence) .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
   - metadata:
@@ -217,7 +221,4 @@ spec:
       storageClassName: "local-storage"
     {{- end }}
 {{- end }}
-{{- end }}
-{{- if .Values.imagePullSecret }}
-  imagePullSecret: {{ .Values.imagePullSecret }}
 {{- end }}

@@ -255,7 +255,8 @@ spec:
       {{- end}}
       {{- end}}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
-{{- end }}
-{{- if .Values.imagePullSecret }}
-  imagePullSecret: {{ .Values.imagePullSecret }}
+  {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+  {{- end }}
 {{- end }}

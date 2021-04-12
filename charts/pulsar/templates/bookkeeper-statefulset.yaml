@@ -179,6 +179,10 @@ spec:
         emptyDir: {}
       {{- end }}
       {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 6 }}
+{{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+{{- end }}
 {{- if and (and .Values.persistence .Values.volumes.persistence) .Values.bookkeeper.volumes.persistence}}
   volumeClaimTemplates:
   - metadata:
@@ -210,7 +214,4 @@ spec:
       storageClassName: "local-storage"
     {{- end }}
 {{- end }}
-{{- end }}
-{{- if .Values.imagePullSecret }}
-  imagePullSecret: {{ .Values.imagePullSecret }}
 {{- end }}

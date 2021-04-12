@@ -107,7 +107,8 @@ spec:
               path: ca.crt
       {{- end}}
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
-{{- end }}
-{{- if .Values.imagePullSecret }}
-  imagePullSecret: {{ .Values.imagePullSecret }}
+  {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+  {{- end }}
 {{- end }}
