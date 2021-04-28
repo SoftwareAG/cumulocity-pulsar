@@ -108,5 +108,9 @@ spec:
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       restartPolicy: Never
+{{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+{{- end }}
 {{- end }}
 {{- end }}
