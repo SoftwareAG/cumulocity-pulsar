@@ -72,7 +72,7 @@ spec:
                 operator: In
                 values:
                 - {{ .Values.zookeeper.component }}
-            topologyKey: "kubernetes.io/hostname"
+            topologyKey: "{{ default "kubernetes.io/hostname" .Values.zookeeper.affinity.anti_affinity_topology_key }}"
         {{ else }}
           {{ .Values.zookeeper.affinity.type }}:
             - weight: 100
@@ -91,7 +91,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Values.zookeeper.component }}
-                topologyKey: "kubernetes.io/hostname"
+                topologyKey: "{{ default "kubernetes.io/hostname" .Values.zookeeper.affinity.anti_affinity_topology_key }}"
         {{ end }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
@@ -200,6 +200,10 @@ spec:
           name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
           defaultMode: 0755
       {{- end}}
+{{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+{{- end }}
 {{- if and (and .Values.persistence .Values.volumes.persistence) .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
   - metadata:

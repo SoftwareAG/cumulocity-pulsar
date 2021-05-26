@@ -29,6 +29,8 @@ namespaceCreate: false
 ## clusterDomain as defined for your k8s cluster
 clusterDomain: cluster.local
 
+imagePullSecret: stageregsecret
+
 ###
 ### Global Settings
 ###
@@ -93,9 +95,9 @@ components:
   # broker
   broker: true
   # functions
-  functions: true
+  functions: false
   # proxy
-  proxy: true
+  proxy: false
   # toolset
   toolset: true
   # pulsar manager
@@ -136,28 +138,28 @@ extra:
 ## Control what images to use for each component
 images:
   zookeeper:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   bookie:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   autorecovery:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   broker:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   proxy:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   functions:
-    repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    repository: c8y-pulsar
+    tag: 2.7.0
   prometheus:
     repository: prom/prometheus
     tag: v2.17.2
@@ -309,8 +311,11 @@ zookeeper:
   gracePeriod: 30
   resources:
     requests:
-      memory: 256Mi
-      cpu: 0.1
+      memory: 512Mi
+      cpu: 0.3
+    limits:
+      memory: 512Mi
+      cpu: 0.3
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -334,7 +339,7 @@ zookeeper:
   ##
   configData:
     PULSAR_MEM: >
-      -Xms64m -Xmx128m
+      -Xms128m -Xmx256m
     PULSAR_GC: >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
@@ -375,7 +380,10 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
-  replicaCount: 4
+      # limits:
+        # memory: 4Gi
+        # cpu: 2
+  replicaCount: 3
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: Parallel
@@ -417,8 +425,11 @@ bookkeeper:
   gracePeriod: 30
   resources:
     requests:
-      memory: 512Mi
-      cpu: 0.2
+      memory: 2048Mi
+      cpu: 2
+    limits:
+      memory: 2048Mi
+      cpu: 2
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -439,7 +450,7 @@ bookkeeper:
         # provisioner: kubernetes.io/gce-pd
     ledgers:
       name: ledgers
-      size: 50Gi
+      size: 200Gi
       local_storage: true
       ## If you already have an existent storage class and want to reuse it, you can specify its name with the option below
       ##
@@ -458,9 +469,9 @@ bookkeeper:
   configData:
     # we use `bin/pulsar` for starting bookie daemons
     PULSAR_MEM: >
-      -Xms128m
-      -Xmx256m
-      -XX:MaxDirectMemorySize=256m
+      -Xms256m
+      -Xmx1024m
+      -XX:MaxDirectMemorySize=512m
     PULSAR_GC: >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
@@ -482,8 +493,8 @@ bookkeeper:
       -Xloggc:/var/log/bookie-gc.log
       -XX:G1LogLevel=finest
     # configure the memory settings based on jvm memory settings
-    dbStorage_writeCacheMaxSizeMb: "32"
-    dbStorage_readAheadCacheMaxSizeMb: "32"
+    dbStorage_writeCacheMaxSizeMb: "64"
+    dbStorage_readAheadCacheMaxSizeMb: "64"
     dbStorage_rocksDB_writeBufferSizeMB: "8"
     dbStorage_rocksDB_blockCacheSize: "8388608"
   ## Bookkeeper Service
@@ -523,7 +534,10 @@ autorecovery:
   resources:
     requests:
       memory: 64Mi
-      cpu: 0.05
+      cpu: 0.5
+    limits:
+      memory: 64Mi
+      cpu: 0.5
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -542,7 +556,7 @@ pulsar_metadata:
   image:
     # the image used for running `pulsar-cluster-initialize` job
     repository: apachepulsar/pulsar-all
-    tag: 2.6.1
+    tag: 2.7.0
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -602,14 +616,17 @@ broker:
   gracePeriod: 30
   resources:
     requests:
-      memory: 512Mi
-      cpu: 0.2
+      memory: 3072Mi
+      cpu: 2
+    limits:
+      memory: 3072Mi
+      cpu: 2
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
   configData:
     PULSAR_MEM: >
-      -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+      -Xms512m -Xmx2048m -XX:MaxDirectMemorySize=512m
     PULSAR_GC: >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
@@ -625,8 +642,8 @@ broker:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-    managedLedgerDefaultEnsembleSize: "2"
-    managedLedgerDefaultWriteQuorum: "2"
+    managedLedgerDefaultEnsembleSize: "3"
+    managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
   ## Broker service
   ## templates/broker-service.yaml
@@ -693,14 +710,17 @@ proxy:
   gracePeriod: 30
   resources:
     requests:
-      memory: 128Mi
-      cpu: 0.2
+      memory: 1024Mi
+      cpu: 2
+    limits:
+      memory: 1024Mi
+      cpu: 2
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
   configData:
     PULSAR_MEM: >
-      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+      -Xms128m -Xmx512 -XX:MaxDirectMemorySize=128m
     PULSAR_GC: >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
@@ -769,6 +789,9 @@ dashboard:
     requests:
       memory: 1Gi
       cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 250m
   ## Dashboard service
   ## templates/dashboard-service.yaml
   ##
@@ -808,6 +831,9 @@ toolset:
     requests:
       memory: 256Mi
       cpu: 0.1
+    limits:
+      memory: 256Mi
+      cpu: 0.1
   ## Bastion configmap
   ## templates/bastion-configmap.yaml
   ##
@@ -840,6 +866,9 @@ prometheus:
   port: 9090
   resources:
     requests:
+      memory: 256Mi
+      cpu: 0.1
+    limits:
       memory: 256Mi
       cpu: 0.1
   volumes:
@@ -879,6 +908,9 @@ grafana:
   gracePeriod: 30
   resources:
     requests:
+      memory: 250Mi
+      cpu: 0.1
+    limits:
       memory: 250Mi
       cpu: 0.1
   ## Grafana service
@@ -931,6 +963,9 @@ pulsar_manager:
   gracePeriod: 30
   resources:
     requests:
+      memory: 250Mi
+      cpu: 0.1
+    limits:
       memory: 250Mi
       cpu: 0.1
   configData:
